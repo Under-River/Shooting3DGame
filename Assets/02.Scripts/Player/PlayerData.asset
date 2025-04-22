@@ -17,7 +17,7 @@ MonoBehaviour:
   ClimbSpeed: 5
   DashTime: 0.5
   DashPower: 40
-  JumpPower: 20
+  JumpPower: 10
   MaxJumpCount: 2
   StaminaMax: 3
   StaminaPlusSpeed: 2

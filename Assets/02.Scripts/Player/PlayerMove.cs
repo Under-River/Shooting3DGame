@@ -10,13 +10,13 @@ public class PlayerMove : MonoBehaviour
     private Vector3 _velocity;
     private Transform _cameraTransform;
 
-    private bool _isGrounded;
+    public bool _isGrounded;
     private bool _isDashing;
     private bool _isClimbing;
 
     private float _speed;
     private float _stamina;
-    private int _currentJumpCount;
+    public int _currentJumpCount;
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
@@ -25,15 +25,12 @@ public class PlayerMove : MonoBehaviour
     private void FixedUpdate()
     {
         Gravity();
-
         GroundCheck();
-
         Move();
         Run();
         Jump();
         UpdateStamina();
         Climb();
-        
         Dash();
 
         _uiPlayer.UpdateStaminaUI(_stamina, _playerData.StaminaMax);
@@ -84,11 +81,19 @@ public class PlayerMove : MonoBehaviour
     private IEnumerator DashCoroutine()
     {
         _isDashing = true;
+        Vector3 dir = Vector3.zero;
 
-        Vector3 camForward = _cameraTransform.forward;
-        camForward.y = 0;
+        if(CameraTypeManager.Instance.CameraType != CameraType.QuarterView)
+        {
+            Vector3 camForward = _cameraTransform.forward;
+            camForward.y = 0;
 
-        Vector3 dir = camForward;
+            dir = camForward;
+        }
+        else
+        {
+            dir = transform.GetComponent<PlayerRotate>().Target.forward;
+        }
 
         float elapsed = 0f;
         while (elapsed < _playerData.DashTime)
@@ -112,7 +117,7 @@ public class PlayerMove : MonoBehaviour
     }
     private void Climb()
     {
-        if (IsFacingWall() && WallCheck() && Input.GetKey(KeyCode.W) && _stamina > 0)
+        if (WallCheck() && Input.GetKey(KeyCode.W) && _stamina > 0)
         {
             _isClimbing = true;
             _controller.Move(Vector3.up * _playerData.ClimbSpeed * Time.deltaTime);
@@ -145,18 +150,6 @@ public class PlayerMove : MonoBehaviour
         int wallLayer = LayerMask.NameToLayer("Wall");
         return Physics.CheckSphere(transform.position, 1f, 1 << wallLayer);
     }
-
-    private bool IsFacingWall()
-    {
-        RaycastHit hit;
-        Vector3 forward = _cameraTransform.forward;
-        if (Physics.Raycast(transform.position, forward, out hit, 1f))
-        {
-            return hit.collider.gameObject.layer == LayerMask.NameToLayer("Wall");
-        }
-        return false;
-    }
-
     private void UpdateStamina()
     { 
         if((Input.GetKey(KeyCode.LeftShift) || _isClimbing) && _stamina > 0)

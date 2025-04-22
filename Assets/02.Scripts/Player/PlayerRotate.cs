@@ -7,6 +7,7 @@ public class PlayerRotate : MonoBehaviour
     [SerializeField] private float _minMouseY = -90f;
     [SerializeField] private float _maxMouseY = 90f;
     private Vector2 _rotationValue;
+    public Transform Target => _target;
     public Vector2 RotationValue => _rotationValue;
 
     private void FixedUpdate()
