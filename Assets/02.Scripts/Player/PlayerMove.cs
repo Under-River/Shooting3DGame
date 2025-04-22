@@ -1,8 +1,19 @@
 using System.Collections;
 using UnityEngine;
 
+public enum PlayerMoveState
+{
+    Idle,
+    Walk,
+    Run,
+    Dash,
+    Jump,
+    Climb,
+}
+
 public class PlayerMove : MonoBehaviour
 {
+    [SerializeField] private PlayerMoveState _playerMoveState;
     [SerializeField] private PlayerData _playerData;
     [SerializeField] private UI_Player _uiPlayer;
 
@@ -11,9 +22,6 @@ public class PlayerMove : MonoBehaviour
     private Transform _cameraTransform;
 
     public bool _isGrounded;
-    private bool _isDashing;
-    private bool _isClimbing;
-
     private float _speed;
     private float _stamina;
     public int _currentJumpCount;
@@ -22,65 +30,72 @@ public class PlayerMove : MonoBehaviour
         _controller = GetComponent<CharacterController>();
         _cameraTransform = Camera.main.transform;
     }
-    private void FixedUpdate()
+    private void Update()
     {
         Gravity();
         GroundCheck();
-        Move();
+
+        Walk();
         Run();
-        Jump();
-        UpdateStamina();
-        Climb();
+
         Dash();
+        Jump();
+        Climb();
+
+        UpdateStamina();
 
         _uiPlayer.UpdateStaminaUI(_stamina, _playerData.StaminaMax);
     }
-    private void Move()
+    private void Walk()
     {
-        if(_isDashing || _isClimbing) return;
+        if(Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
+        {
+            _playerMoveState = PlayerMoveState.Walk;    
 
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+            float h = Input.GetAxis("Horizontal");
+            float v = Input.GetAxis("Vertical");
 
-        Vector3 _moveDir = new Vector3(h, 0, v).normalized;
+            Vector3 camForward = _cameraTransform.forward;
+            camForward.y = 0;
+            camForward.Normalize();
 
-        Vector3 camForward = _cameraTransform.forward;
-        camForward.y = 0;
-        camForward.Normalize();
+            Vector3 camRight = _cameraTransform.right;
+            camRight.y = 0;
+            camRight.Normalize();
 
-        Vector3 camRight = _cameraTransform.right;
-        camRight.y = 0;
-        camRight.Normalize();
-        _moveDir = camForward * v + camRight * h;
+            Vector3 _moveDir = camForward * v + camRight * h;
 
-        _controller.Move(_moveDir * _speed * Time.deltaTime);
+            _controller.Move(_moveDir * _speed * Time.deltaTime);
+        }
     }
     private void Run()
     {
-        if(_isDashing || _isClimbing) return;
-
         if(Input.GetKey(KeyCode.LeftShift) && _stamina > 0)
         {
+            _playerMoveState = PlayerMoveState.Run;    
             _speed = _playerData.RunSpeed;
+            _stamina -= Time.deltaTime * _playerData.StaminaMinusSpeed;
         }
         else
         {
+            _playerMoveState = PlayerMoveState.Walk;
             _speed = _playerData.DefaultSpeed;
         }
     }
     private void Dash()
     {
-        if(_isDashing || _isClimbing) return;
+        if(_playerMoveState == PlayerMoveState.Dash) return;
 
         if(Input.GetKeyDown(KeyCode.E) && _stamina > 1f)
         {
-            _stamina -= 1f;
             StartCoroutine(DashCoroutine());
         }
     }
     private IEnumerator DashCoroutine()
     {
-        _isDashing = true;
+        _playerMoveState = PlayerMoveState.Dash;
+        _stamina -= 1f;
+
         Vector3 dir = Vector3.zero;
 
         if(CameraTypeManager.Instance.CameraType != CameraType.QuarterView)
@@ -103,37 +118,39 @@ public class PlayerMove : MonoBehaviour
             yield return null;
         }
 
-        _isDashing = false;
+        _playerMoveState = PlayerMoveState.Idle;
     }
     private void Jump()
     {
-        if(_isDashing || _isClimbing) return;
-
-        if (Input.GetButtonDown("Jump") && (_isGrounded || _currentJumpCount < _playerData.MaxJumpCount))
+        if (Input.GetButtonDown("Jump"))
         {
-            _currentJumpCount++;
-            _velocity.y = Mathf.Sqrt(_playerData.JumpPower * -_playerData.GravityMultiplier * _playerData.Gravity);
+            if (_isGrounded || _currentJumpCount < _playerData.MaxJumpCount)
+            {
+                _playerMoveState = PlayerMoveState.Jump;
+                _currentJumpCount++;
+                _velocity.y = Mathf.Sqrt(_playerData.JumpPower * -_playerData.GravityMultiplier * _playerData.Gravity);
+            }
         }
     }
     private void Climb()
     {
-        if (WallCheck() && Input.GetKey(KeyCode.W) && _stamina > 0)
+        if (WallCheck() && Input.GetButton("Jump") && _stamina > 0)
         {
-            _isClimbing = true;
+            _playerMoveState = PlayerMoveState.Climb;
+            _stamina -= Time.deltaTime * _playerData.StaminaMinusSpeed;
             _controller.Move(Vector3.up * _playerData.ClimbSpeed * Time.deltaTime);
         }
-        else
-        {
-            _isClimbing = false;
-        }
     }
-    
     private void Gravity()
     {
-        if(_isClimbing) return;
+        if(_playerMoveState == PlayerMoveState.Climb) return;
 
-        _velocity.y += _playerData.Gravity * _playerData.GravityMultiplier * Time.deltaTime;
-        _controller.Move(_velocity * Time.deltaTime);
+        if(!_isGrounded)
+        {
+            _velocity.y += _playerData.Gravity * _playerData.GravityMultiplier * Time.deltaTime;
+            _velocity.y = Mathf.Clamp(_velocity.y, -_playerData.GravityMaxSpeed, _playerData.GravityMaxSpeed);
+            _controller.Move(_velocity * Time.deltaTime);
+        }
     }
     private void GroundCheck()
     {
@@ -152,14 +169,13 @@ public class PlayerMove : MonoBehaviour
     }
     private void UpdateStamina()
     { 
-        if((Input.GetKey(KeyCode.LeftShift) || _isClimbing) && _stamina > 0)
-        {
-            _stamina -= Time.deltaTime * _playerData.StaminaMinusSpeed;
-        }
-        else if(_isGrounded && (!Input.GetKey(KeyCode.LeftShift) || !_isClimbing) && _stamina < _playerData.StaminaMax)
+        if(_playerMoveState == PlayerMoveState.Climb || _playerMoveState == PlayerMoveState.Run) return;
+
+        if(_isGrounded && _stamina < _playerData.StaminaMax)
         {
             _stamina += Time.deltaTime * _playerData.StaminaPlusSpeed;
         }
         _stamina = Mathf.Clamp(_stamina, 0, _playerData.StaminaMax);
+
     }
 }

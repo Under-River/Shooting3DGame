@@ -3,14 +3,11 @@ using UnityEngine;
 public class PlayerRotate : MonoBehaviour
 {
     [SerializeField] private PlayerData _playerData;
+    [SerializeField] private CameraRotate _cameraRotate;
     [SerializeField] private Transform _target;
-    [SerializeField] private float _minMouseY = -90f;
-    [SerializeField] private float _maxMouseY = 90f;
-    private Vector2 _rotationValue;
     public Transform Target => _target;
-    public Vector2 RotationValue => _rotationValue;
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         PersonViewRotatePlayer();
         QuarterViewRotatePlayer();
@@ -20,14 +17,9 @@ public class PlayerRotate : MonoBehaviour
         if(CameraTypeManager.Instance.CameraType == CameraType.FPS 
         || CameraTypeManager.Instance.CameraType == CameraType.TPS)
         {
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
+            Quaternion targetRotation = Quaternion.Euler(_cameraRotate.RotationValue.y, _cameraRotate.RotationValue.x, 0);
 
-            _rotationValue.x += mouseX * _playerData.RotationSpeed * Time.deltaTime;
-            _rotationValue.y -= mouseY * _playerData.RotationSpeed * Time.deltaTime;
-            _rotationValue.y = Mathf.Clamp(_rotationValue.y, _minMouseY, _maxMouseY);
-
-            _target.eulerAngles = new Vector3(_rotationValue.y, _rotationValue.x, 0);
+            _target.rotation = Quaternion.Lerp(_target.rotation, targetRotation, Time.deltaTime * _playerData.RotationSmoothness);
         }
     }
     private void QuarterViewRotatePlayer()
@@ -45,7 +37,7 @@ public class PlayerRotate : MonoBehaviour
                 _target.rotation = rotation;
             }
 
-            _rotationValue.x = _target.eulerAngles.y;
+            _cameraRotate.SetRotationValueX(_target.eulerAngles.y);
         }
     }
 }

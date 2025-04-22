@@ -14,14 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultSpeed: 7
   RunSpeed: 12
-  ClimbSpeed: 5
-  DashTime: 0.5
-  DashPower: 40
+  ClimbSpeed: 10
+  DashTime: 0.05
+  DashPower: 400
   JumpPower: 10
   MaxJumpCount: 2
   StaminaMax: 3
   StaminaPlusSpeed: 2
   StaminaMinusSpeed: 1
   Gravity: -9.81
-  GravityMultiplier: 3
-  RotationSpeed: 500
+  GravityMaxSpeed: 50
+  GravityMultiplier: 7
+  RotationSpeed: 300
+  RotationSmoothness: 30

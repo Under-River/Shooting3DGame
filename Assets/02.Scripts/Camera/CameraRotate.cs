@@ -2,30 +2,48 @@ using UnityEngine;
 
 public class CameraRotate : MonoBehaviour
 {
-    [SerializeField] private PlayerRotate _playerRotate;
+    [SerializeField] private PlayerData _playerData;
     [SerializeField] private Vector3 _quarterViewDirectionOffset = new Vector3(60f, 0f, 0f);
-    private void FixedUpdate()
-    {
-        CameraRotateUpdate();
-    }
-    void CameraRotateUpdate()
+    [SerializeField] private float _minMouseY = -90f;
+    [SerializeField] private float _maxMouseY = 90f;
+    public Vector2 _rotationValue;
+    public Vector2 RotationValue => _rotationValue;
+    private void LateUpdate()
     {
         PersonViewRotateCamera();
         QuarterViewRotateCamera();
     }
-    void PersonViewRotateCamera()
+    public void SetRotationValueX(float x)
+    {
+        _rotationValue.x = x;
+    }
+    private void PersonViewRotateCamera()
     {
         if(CameraTypeManager.Instance.CameraType == CameraType.FPS 
         || CameraTypeManager.Instance.CameraType == CameraType.TPS)
         {
-            transform.eulerAngles = new Vector3(_playerRotate.RotationValue.y, _playerRotate.RotationValue.x, 0);
+            float mouseX = Input.GetAxis("Mouse X");
+            float mouseY = Input.GetAxis("Mouse Y");
+
+            _rotationValue.x += mouseX * _playerData.RotationSpeed * Time.deltaTime;
+            _rotationValue.y -= mouseY * _playerData.RotationSpeed * Time.deltaTime;
+            _rotationValue.y = Mathf.Clamp(_rotationValue.y, _minMouseY, _maxMouseY);
+
+            transform.eulerAngles = new Vector3(_rotationValue.y, _rotationValue.x, 0);
         }
     }
-    void QuarterViewRotateCamera()
+    private void QuarterViewRotateCamera()
     {
         if(CameraTypeManager.Instance.CameraType == CameraType.QuarterView)
         {
             transform.eulerAngles = _quarterViewDirectionOffset;
         }
+    }
+    public void AddRecoil(float magnitude)
+    {
+        float y = Random.Range(-1f, 1f);
+
+        _rotationValue.x += y;
+        _rotationValue.y -= magnitude;
     }
 }

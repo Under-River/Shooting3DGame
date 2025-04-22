@@ -19,7 +19,9 @@ public class PlayerData : ScriptableObject
     public float StaminaMinusSpeed = 1f;
 
     public float Gravity = -9.81f;
+    public float GravityMaxSpeed = 20f;
     public float GravityMultiplier = 3.0f;
 
     public float RotationSpeed = 500f;
+    public float RotationSmoothness = 10f;
 }
