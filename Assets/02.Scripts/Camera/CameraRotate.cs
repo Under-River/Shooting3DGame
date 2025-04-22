@@ -6,12 +6,16 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] private Vector3 _quarterViewDirectionOffset = new Vector3(60f, 0f, 0f);
     [SerializeField] private float _minMouseY = -90f;
     [SerializeField] private float _maxMouseY = 90f;
+    [SerializeField] private float _recoilPower= 10f;
+    [SerializeField] private float _recoilXAngle= 5f;
     public Vector2 _rotationValue;
+    public Vector2 _totalRotation;
     public Vector2 RotationValue => _rotationValue;
     private void LateUpdate()
     {
         PersonViewRotateCamera();
         QuarterViewRotateCamera();
+        LerpRecoil();
     }
     public void SetRotationValueX(float x)
     {
@@ -39,11 +43,20 @@ public class CameraRotate : MonoBehaviour
             transform.eulerAngles = _quarterViewDirectionOffset;
         }
     }
-    public void AddRecoil(float magnitude)
+    public void AddRecoil()
     {
-        float y = Random.Range(-1f, 1f);
-
-        _rotationValue.x += y;
-        _rotationValue.y -= magnitude;
+        float x = Random.Range(-_recoilXAngle, _recoilXAngle);
+        _totalRotation = new Vector3(x, -_recoilPower);
+    }
+    public void ResetRecoil()
+    {
+        _totalRotation = Vector2.zero;
+    }
+    void LerpRecoil()
+    {
+        if(_totalRotation.magnitude > 0.01f )
+        {
+            _rotationValue = Vector2.Lerp(_rotationValue, _rotationValue + _totalRotation, Time.deltaTime);
+        }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerFire : MonoBehaviour
 {
     [SerializeField] private CameraRotate _cameraRotate;
+    [SerializeField] private Animator _weapon;
     [SerializeField] private Transform _firePos;
     [SerializeField] private EffectPool _bulletEffect;
     [SerializeField] private ParticleSystem _oneFireEffect;
@@ -51,6 +52,8 @@ public class PlayerFire : MonoBehaviour
         else if(Input.GetMouseButtonUp(0))
         {
             _isFire = false;
+            _cameraRotate.ResetRecoil();
+            _weapon.SetBool("IsFire", false);
         }
     }
     IEnumerator C_bulletEffect()
@@ -66,7 +69,8 @@ public class PlayerFire : MonoBehaviour
             {
                 _bulletEffect.SpawnEffect(hitInfo.point, hitInfo.normal);
             }
-            _cameraRotate.AddRecoil(1f);
+            _cameraRotate.AddRecoil();
+            _weapon.SetBool("IsFire", true);
             yield return new WaitForSeconds(_bulletEffectTime);
         }
     }
