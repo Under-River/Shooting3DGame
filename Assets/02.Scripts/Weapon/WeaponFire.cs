@@ -30,13 +30,13 @@ public class WeaponFire : MonoBehaviour
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        _bulletObjectPool = PoolSelector.instance.BulletObjectPool;
         _bulletCount = _playerData.BulletCountMax;
         _delayTime = _perDelayTime * _cycleValue;
         _layerMask = ~(1 << LayerMask.NameToLayer("Player"));
     }
     private void Start()
     {
+        _bulletObjectPool = PoolSelector.instance.BulletObjectPool;
         _uiPlayer.ReloadImageActive(false);
     }
     private void Update()
@@ -67,7 +67,7 @@ public class WeaponFire : MonoBehaviour
             _bulletObjectPool.SpawnEffect( _muzzle.position, _muzzle.forward);
             
             GameObject bullet = _bulletObjectPool.Target;
-            
+
             Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
             bulletRigidbody.AddForce(_muzzle.forward * _shotPower, ForceMode.Impulse);
             bulletRigidbody.AddTorque(Vector3.one);
@@ -120,7 +120,6 @@ public class WeaponFire : MonoBehaviour
         if (UpdateRaycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit))
         {
             _camRayHit = hit;
-            _muzzle.LookAt(_camRayHit.point);
             _hand.LookAt(_camRayHit.point);
             Debug.DrawRay(_muzzle.position, _muzzle.forward * RAY_DISTANCE, Color.green, 1f);
         }
