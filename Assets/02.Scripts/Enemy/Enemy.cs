@@ -29,7 +29,7 @@ public class Enemy : MonoBehaviour
     public float PatrolPointSwitchTime = 1.0f;
     public Transform Player;
     public Transform[] PatrolPoints;
-
+    private int _patrolIndex = 0;
     private float _knockBackTimer = 0.0f;
     private float _idleTimer = 0.0f;
     private float _attackTimer = 0.0f;
@@ -106,8 +106,8 @@ public class Enemy : MonoBehaviour
         else if(_idleTimer >= SwitchPatrolTime)
         {
             _idleTimer = 0.0f;
+            _patrolIndex = 0;
             CurrentState = EnemyState.Patrol;
-            StartCoroutine(Patrol_Coroutine());
         }
     }
     private void Trace()
@@ -164,28 +164,20 @@ public class Enemy : MonoBehaviour
         if(Vector3.Distance(transform.position, Player.transform.position) < FindDistance)
         {
             Debug.Log("상태 전환 : Patrol -> Trace");
+            _patrolIndex = 0;
             CurrentState = EnemyState.Trace;
         }
-    }
-    private IEnumerator Patrol_Coroutine()
-    {
-        print("패트롤 시작");  
-        int currentIndex = 0;     
-        while(CurrentState == EnemyState.Patrol)
+        if(Vector3.Distance(transform.position, PatrolPoints[_patrolIndex].position) < _characterController.minMoveDistance)
         {
-            if(Vector3.Distance(transform.position, PatrolPoints[currentIndex].position) < _characterController.minMoveDistance)
+            print($"패트롤 포인트 전환 : {_patrolIndex} -> {_patrolIndex + 1}");
+            _patrolIndex++;
+            if(_patrolIndex >= PatrolPoints.Length)
             {
-                print($"패트롤 포인트 전환 : {currentIndex} -> {currentIndex + 1}");
-                currentIndex++;
-                if(currentIndex >= PatrolPoints.Length)
-                {
-                    currentIndex = 0;
-                }
+                _patrolIndex = 0;
             }
-            Vector3 dir = (PatrolPoints[currentIndex].position - transform.position).normalized;
-            _characterController.Move(dir * MoveSpeed * Time.deltaTime);
-            yield return null;
         }
+        Vector3 dir = (PatrolPoints[_patrolIndex].position - transform.position).normalized;
+        _characterController.Move(dir * MoveSpeed * Time.deltaTime);
     }
     private IEnumerator Damaged_Coroutine()
     {
