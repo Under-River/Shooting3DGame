@@ -163,7 +163,7 @@ public class Enemy : MonoBehaviour
     {
         if(Vector3.Distance(transform.position, Player.transform.position) < FindDistance)
         {
-            Debug.Log("상태 전환 : Idle -> Trace");
+            Debug.Log("상태 전환 : Patrol -> Trace");
             CurrentState = EnemyState.Trace;
         }
     }
