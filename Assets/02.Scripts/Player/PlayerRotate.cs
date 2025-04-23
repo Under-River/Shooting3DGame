@@ -9,7 +9,7 @@ public class PlayerRotate : MonoBehaviour
     public Transform TargetX => _targetX;
     public Transform TargetY => _targetY;
 
-    private void LateUpdate()
+    private void FixedUpdate()
     {
         PersonViewRotatePlayer();
         QuarterViewRotatePlayer();

@@ -8,7 +8,7 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] private float _maxMouseY = 90f;
     public Vector3 _rotationValue;
     public Vector3 RotationValue => _rotationValue;
-    private void LateUpdate()
+    private void FixedUpdate()
     {
         PersonViewRotateCamera();
         QuarterViewRotateCamera();
