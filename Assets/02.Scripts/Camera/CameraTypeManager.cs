@@ -9,6 +9,7 @@ public enum CameraType
 public class CameraTypeManager : MonoBehaviour
 {
     [SerializeField] private CameraType _cameraType;
+    private Camera _cam;
     public CameraType CameraType => _cameraType;
 
     public static CameraTypeManager Instance;
@@ -16,6 +17,12 @@ public class CameraTypeManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        _cam = Camera.main;
+    }
+    private void Start()
+    {
+        _cameraType = CameraType.FPS;
+        _cam.cullingMask = ~(1 << LayerMask.NameToLayer("Player"));
     }
     private void Update()
     {
@@ -27,14 +34,17 @@ public class CameraTypeManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Keypad8))
         {
             _cameraType = CameraType.FPS;
+            _cam.cullingMask = ~(1 << LayerMask.NameToLayer("Player"));
         }
         else if(Input.GetKeyDown(KeyCode.Keypad9))
         {
             _cameraType = CameraType.TPS;
+            _cam.cullingMask = -1;
         }
         else if(Input.GetKeyDown(KeyCode.Keypad0))
         {
             _cameraType = CameraType.QuarterView;
+            _cam.cullingMask = -1;
         }
     }
 }

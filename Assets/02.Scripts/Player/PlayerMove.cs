@@ -21,10 +21,10 @@ public class PlayerMove : MonoBehaviour
     private Vector3 _velocity;
     private Transform _cameraTransform;
 
-    public bool _isGrounded;
+    private bool _isGrounded;
     private float _speed;
     private float _stamina;
-    public int _currentJumpCount;
+    private int _currentJumpCount;
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
@@ -107,7 +107,7 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            dir = transform.GetComponent<PlayerRotate>().Target.forward;
+            dir = transform.GetComponent<PlayerRotate>().TargetX.forward;
         }
 
         float elapsed = 0f;
@@ -129,6 +129,7 @@ public class PlayerMove : MonoBehaviour
                 _playerMoveState = PlayerMoveState.Jump;
                 _currentJumpCount++;
                 _velocity.y = Mathf.Sqrt(_playerData.JumpPower * -_playerData.GravityMultiplier * _playerData.Gravity);
+                _controller.Move(_velocity * Time.deltaTime);
             }
         }
     }

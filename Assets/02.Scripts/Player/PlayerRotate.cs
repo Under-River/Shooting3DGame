@@ -4,8 +4,10 @@ public class PlayerRotate : MonoBehaviour
 {
     [SerializeField] private PlayerData _playerData;
     [SerializeField] private CameraRotate _cameraRotate;
-    [SerializeField] private Transform _target;
-    public Transform Target => _target;
+    [SerializeField] private Transform _targetX;
+    [SerializeField] private Transform _targetY;
+    public Transform TargetX => _targetX;
+    public Transform TargetY => _targetY;
 
     private void LateUpdate()
     {
@@ -17,9 +19,11 @@ public class PlayerRotate : MonoBehaviour
         if(CameraTypeManager.Instance.CameraType == CameraType.FPS 
         || CameraTypeManager.Instance.CameraType == CameraType.TPS)
         {
-            Quaternion targetRotation = Quaternion.Euler(_cameraRotate.RotationValue.y, _cameraRotate.RotationValue.x, 0);
+            Quaternion targetRotationX = Quaternion.Euler(0, _cameraRotate.RotationValue.x, 0);
+            Quaternion targetRotationY = Quaternion.Euler(_cameraRotate.RotationValue.y, 0, 0);
 
-            _target.rotation = Quaternion.Lerp(_target.rotation, targetRotation, Time.deltaTime * _playerData.RotationSmoothness);
+            _targetX.rotation = Quaternion.Lerp(_targetX.rotation, targetRotationX, Time.deltaTime * _playerData.RotationSmoothness);
+            _targetY.localRotation = Quaternion.Lerp(_targetY.localRotation, targetRotationY, Time.deltaTime * _playerData.RotationSmoothness);
         }
     }
     private void QuarterViewRotatePlayer()
@@ -34,10 +38,10 @@ public class PlayerRotate : MonoBehaviour
                 Vector3 _moveDir = new Vector3(h, 0, v).normalized;
 
                 Quaternion rotation = Quaternion.LookRotation(_moveDir);
-                _target.rotation = rotation;
+                _targetX.rotation = rotation;
             }
 
-            _cameraRotate.SetRotationValueX(_target.eulerAngles.y);
+            _cameraRotate.SetRotationValue(new Vector3(_targetX.eulerAngles.y, 0, 0));
         }
     }
 }
