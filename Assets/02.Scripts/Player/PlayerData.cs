@@ -24,4 +24,7 @@ public class PlayerData : ScriptableObject
 
     public float RotationSpeed = 500f;
     public float RotationSmoothness = 10f;
+
+    public int GrenadeCountMax = 3;
+    public int BulletCountMax = 50;
 }

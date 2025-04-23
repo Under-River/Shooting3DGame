@@ -25,17 +25,17 @@ public class WeaponFireEffect : MonoBehaviour
     }
     private void FireEffectPlay()
     {
+        _weaponFire.Fire();
         _fireEffect.Play();
         _fireLight.gameObject.SetActive(true);
     }
     private void FireEffect()
     {
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0) && _weaponFire.BulletCount > 0 && !_weaponFire.IsReloading)
         {
             _weaponAni.SetBool("IsFire", true);
-            _fireLight.gameObject.SetActive(true);
         }
-        else if(Input.GetMouseButtonUp(0))
+        else if(Input.GetMouseButtonUp(0) || _weaponFire.BulletCount <= 0 || _weaponFire.IsReloading)
         {
             _weaponAni.SetBool("IsFire", false);
             _fireLight.gameObject.SetActive(false);
