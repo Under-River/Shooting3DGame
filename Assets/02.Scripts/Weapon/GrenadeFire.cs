@@ -2,23 +2,29 @@ using UnityEngine;
 
 public class GrenadeFire : MonoBehaviour
 {
-    [SerializeField] private PlayerData _playerData;
+    [Header("Components")]
+    [SerializeField] private PlayerWeaponData _playerWeaponData;
     [SerializeField] private UI_Player _uiPlayer;
     [SerializeField] private GameObject _bombPrefab;
     [SerializeField] private Transform _firePosition;
+
+    [Header("Throw Stat")]
     [SerializeField] private float _throwPowerMin = 10f;
     [SerializeField] private float _throwPowerMax = 20f;
     [SerializeField] private float _chargeSpeed = 3f;
     [SerializeField] private float _throwAngle = 45f;
-    [SerializeField] private float _throwPower;
-    [SerializeField] private LineRenderer _trajectoryLine;
-    [SerializeField] private int _trajectoryPoints = 30;
-    [SerializeField] private float _trajectoryTimeStep = 0.1f;
+
+    [Header("LineRenderer")]
+    [SerializeField] private LineRenderer _line;
+    [SerializeField] private int _pointCount = 30;
+    [SerializeField] private float _timeStep = 0.1f;
+
+    private float _throwPower;
     private int _grenadeCount;
 
     void Start()
     {
-        _grenadeCount = _playerData.GrenadeCountMax;
+        _grenadeCount = _playerWeaponData.GrenadeCountMax;
         _uiPlayer.UpdateGrenadeCountUI(_grenadeCount);
     }
 
@@ -29,7 +35,7 @@ public class GrenadeFire : MonoBehaviour
             if (Input.GetMouseButtonDown(1))
             {
                 _throwPower = _throwPowerMin;
-                _trajectoryLine.positionCount = _trajectoryPoints;
+                _line.positionCount = _pointCount;
             }
             else if (Input.GetMouseButton(1))
             {
@@ -39,7 +45,7 @@ public class GrenadeFire : MonoBehaviour
             if (Input.GetMouseButtonUp(1))
             {
                 FireInTheHole();
-                _trajectoryLine.positionCount = 0;
+                _line.positionCount = 0;
             }
         }
     }
@@ -66,17 +72,17 @@ public class GrenadeFire : MonoBehaviour
 
     private void UpdateTrajectory()
     {
-        Vector3[] points = new Vector3[_trajectoryPoints];
+        Vector3[] points = new Vector3[_pointCount];
 
         Vector3 startPosition = _firePosition.position;
         Vector3 startVelocity = _firePosition.forward * _throwPower;
 
-        for (int i = 0; i < _trajectoryPoints; i++)
+        for (int i = 0; i < _pointCount; i++)
         {
-            float time = i * _trajectoryTimeStep;
+            float time = i * _timeStep;
             points[i] = startPosition + startVelocity * time + 0.5f * Physics.gravity * time * time;
         }
 
-        _trajectoryLine.SetPositions(points);
+        _line.SetPositions(points);
     }
 }

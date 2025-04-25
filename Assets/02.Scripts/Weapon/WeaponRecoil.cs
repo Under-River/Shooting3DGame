@@ -2,12 +2,8 @@ using UnityEngine;
 
 public class WeaponRecoil : MonoBehaviour
 {
+    [SerializeField] private WeaponStatData _weaponStatData;
     [SerializeField] private CameraRotate _cameraRotate;
-    [SerializeField] private float _recoilStrengthX = 0.1f;
-    [SerializeField] private float _recoilStrengthY = 1f;
-    [SerializeField] private float _recoilMultiplier = 1f;
-    [SerializeField] private float _recoilYDuration = 0.1f;
-    [SerializeField] private AnimationCurve _recoilCurve;
     private Vector3 _totalRotation;
     private Vector3 _targetRotation;
 
@@ -15,28 +11,30 @@ public class WeaponRecoil : MonoBehaviour
     {
         LerpRecoil();
     }
-
-    public void AddRecoil()
+    public void AddRecoil(int fireCount)
     {
-        float x = Random.Range(-_recoilStrengthX, _recoilStrengthX) * _recoilMultiplier;
-        _totalRotation = new Vector3(x, -_recoilStrengthY * _recoilMultiplier, 0);
-        _targetRotation = _cameraRotate.RotationValue + _totalRotation;
+        if(fireCount > 1)
+        {
+            float x = Random.Range(-_weaponStatData.RecoilStrengthX, _weaponStatData.RecoilStrengthX) * _weaponStatData.RecoilMultiplier;
+            _totalRotation = new Vector3(x, -_weaponStatData.RecoilStrengthY * _weaponStatData.RecoilMultiplier, 0);
+            _targetRotation = _cameraRotate.RotationValue + _totalRotation;
+        }
+        _cameraRotate.ActiveShakeCamera(true);
     }
-
     public void ResetRecoil()
     {
         _totalRotation = Vector2.zero;
+        _cameraRotate.ActiveShakeCamera(false);
     }
-
-    void LerpRecoil()
+    private void LerpRecoil()
     {
         if(_totalRotation.magnitude > 0f)
         {
             Vector2 currentRotation = _cameraRotate.RotationValue;
-            float t = _recoilCurve.Evaluate(Time.deltaTime);
+            float t = _weaponStatData.RecoilCurve.Evaluate(Time.deltaTime);
 
             currentRotation.x = Mathf.Lerp(currentRotation.x, _targetRotation.x, t);
-            currentRotation.y = Mathf.MoveTowards(currentRotation.y, _targetRotation.y, _recoilYDuration);
+            currentRotation.y = Mathf.MoveTowards(currentRotation.y, _targetRotation.y, _weaponStatData.RecoilYDuration);
             
             _cameraRotate.SetRotationValue(currentRotation);
         }

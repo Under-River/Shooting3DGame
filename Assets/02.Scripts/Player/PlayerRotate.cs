@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerRotate : MonoBehaviour
 {
-    [SerializeField] private PlayerData _playerData;
+    [SerializeField] private PlayerMoveData _playerData;
     [SerializeField] private CameraRotate _cameraRotate;
     [SerializeField] private Transform _targetX;
     [SerializeField] private Transform _targetY;

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class UI_Player : MonoBehaviour
 {
-    [SerializeField] private PlayerData _playerData;
+    [SerializeField] private PlayerWeaponData _playerWeaponData;
     [SerializeField] private Slider _staminaSlider;
     [SerializeField] private TextMeshProUGUI _grenadeCountText;
     [SerializeField] private TextMeshProUGUI _bulletCountText;
@@ -15,11 +15,11 @@ public class UI_Player : MonoBehaviour
     }
     public void UpdateGrenadeCountUI(int grenadeCount)
     {
-        _grenadeCountText.text = $"수류탄 : {grenadeCount} / {_playerData.GrenadeCountMax}";
+        _grenadeCountText.text = $"수류탄 : {grenadeCount} / {_playerWeaponData.GrenadeCountMax}";
     }
     public void UpdateBulletCountUI(int bulletCount)
     {
-        _bulletCountText.text = $"총알 : {bulletCount} / {_playerData.BulletCountMax}";
+        _bulletCountText.text = $"총알 : {bulletCount} / {_playerWeaponData.BulletCountMax}";
     }
     public void UpdateReloadUI(float time, float reloadTime)
     {

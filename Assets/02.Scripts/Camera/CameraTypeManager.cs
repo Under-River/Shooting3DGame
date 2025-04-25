@@ -10,6 +10,7 @@ public class CameraTypeManager : MonoBehaviour
 {
     [SerializeField] private CameraType _cameraType;
     private Camera _cam;
+    private int _defaultCullingMask;
     public CameraType CameraType => _cameraType;
 
     public static CameraTypeManager Instance;
@@ -18,11 +19,12 @@ public class CameraTypeManager : MonoBehaviour
     {
         Instance = this;
         _cam = Camera.main;
+        _defaultCullingMask = _cam.cullingMask;
     }
     private void Start()
     {
         _cameraType = CameraType.FPS;
-        _cam.cullingMask = ~(1 << LayerMask.NameToLayer("Player"));
+        _cam.cullingMask = _defaultCullingMask & ~(1 << LayerMask.NameToLayer("Player"));
     }
     private void Update()
     {
@@ -34,17 +36,17 @@ public class CameraTypeManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Keypad8))
         {
             _cameraType = CameraType.FPS;
-            _cam.cullingMask = ~(1 << LayerMask.NameToLayer("Player"));
+            _cam.cullingMask = _defaultCullingMask & ~(1 << LayerMask.NameToLayer("Player"));
         }
         else if(Input.GetKeyDown(KeyCode.Keypad9))
         {
             _cameraType = CameraType.TPS;
-            _cam.cullingMask = -1;
+            _cam.cullingMask = _defaultCullingMask;
         }
         else if(Input.GetKeyDown(KeyCode.Keypad0))
         {
             _cameraType = CameraType.QuarterView;
-            _cam.cullingMask = -1;
+            _cam.cullingMask = _defaultCullingMask;
         }
     }
 }

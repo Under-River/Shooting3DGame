@@ -1,99 +1,125 @@
 using System.Collections;
 using UnityEngine;
 
-public enum PlayerMoveState
+public enum PlayerActionState
 {
-    Idle,
-    Walk,
-    Run,
+    None,
     Dash,
-    Jump,
     Climb,
 }
 
 public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] private PlayerMoveState _playerMoveState;
-    [SerializeField] private PlayerData _playerData;
+    [SerializeField] private PlayerActionState _playerActionState;
+    [SerializeField] private PlayerMoveData _playerMoveData;
     [SerializeField] private UI_Player _uiPlayer;
 
     private CharacterController _controller;
-    private Vector3 _velocity;
     private Transform _cameraTransform;
 
-    private bool _isGrounded;
+    public Vector3 _velocity;
     private float _speed;
     private float _stamina;
     private int _currentJumpCount;
+
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
         _cameraTransform = Camera.main.transform;
+        _speed = _playerMoveData.DefaultSpeed;
+    }
+    private void FixedUpdate()
+    {
+        Move();
+        Gravity();
     }
     private void Update()
     {
-        Gravity();
-        GroundCheck();
-
-        Walk();
-        Run();
-
+        UpdateVelocity();
+        UpdateSpeed();
+        UpdateStamina();
+        
         Dash();
-        Jump();
         Climb();
 
-        UpdateStamina();
-
-        _uiPlayer.UpdateStaminaUI(_stamina, _playerData.StaminaMax);
+        _uiPlayer.UpdateStaminaUI(_stamina, _playerMoveData.StaminaMax);
     }
-    private void Walk()
+    private void UpdateVelocity()
     {
         if(Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
         {
-            _playerMoveState = PlayerMoveState.Walk;    
-
-            float h = Input.GetAxis("Horizontal");
-            float v = Input.GetAxis("Vertical");
-
-            Vector3 camForward = _cameraTransform.forward;
-            camForward.y = 0;
-            camForward.Normalize();
-
-            Vector3 camRight = _cameraTransform.right;
-            camRight.y = 0;
-            camRight.Normalize();
-
-            Vector3 _moveDir = camForward * v + camRight * h;
-
-            _controller.Move(_moveDir * _speed * Time.deltaTime);
-        }
-    }
-    private void Run()
-    {
-        if(Input.GetKey(KeyCode.LeftShift) && _stamina > 0)
-        {
-            _playerMoveState = PlayerMoveState.Run;    
-            _speed = _playerData.RunSpeed;
-            _stamina -= Time.deltaTime * _playerData.StaminaMinusSpeed;
+            MoveInput(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         }
         else
         {
-            _playerMoveState = PlayerMoveState.Walk;
-            _speed = _playerData.DefaultSpeed;
+            MoveInput(0,0);
+        }
+        if(Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
+    }
+    private void UpdateSpeed()
+    {
+        if(Input.GetKeyDown(KeyCode.LeftShift) && _stamina > 0)
+        {
+            _speed = _playerMoveData.RunSpeed;
+        }
+        else if(Input.GetKeyUp(KeyCode.LeftShift) && _stamina <= 0)
+        {
+            _speed = _playerMoveData.DefaultSpeed;
+        }
+    }
+    private void UpdateStamina()
+    {
+        if(Input.GetKey(KeyCode.LeftShift) && _playerActionState == PlayerActionState.Climb)
+        {
+            _stamina -= Time.deltaTime * _playerMoveData.StaminaMinusSpeed;
+        }
+        else if(_stamina < _playerMoveData.StaminaMax && _playerActionState == PlayerActionState.None
+        && _controller.isGrounded)
+        {
+            _stamina += Time.deltaTime * _playerMoveData.StaminaPlusSpeed;
+        }
+    }
+    private void MoveInput(float x, float z)
+    {
+        Vector3 camForward = _cameraTransform.forward;
+        Vector3 camRight = _cameraTransform.right;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 _moveDir = camRight * x + camForward * z;
+        Vector3 move = _moveDir.normalized * _speed;
+
+        _velocity.x = move.x;
+        _velocity.z = move.z;
+    }
+    private void Move()
+    {
+        if(_playerActionState == PlayerActionState.None)
+        {
+            _controller.Move(_velocity * Time.deltaTime);
+        }
+    }
+    private void Jump()
+    {
+        if (_controller.isGrounded || _currentJumpCount < _playerMoveData.MaxJumpCount)
+        {
+            _currentJumpCount++;
+            _velocity.y = Mathf.Sqrt(_playerMoveData.JumpPower * -_playerMoveData.Gravity * _playerMoveData.GravityMultiplier);
         }
     }
     private void Dash()
     {
-        if(_playerMoveState == PlayerMoveState.Dash) return;
-
         if(Input.GetKeyDown(KeyCode.E) && _stamina > 1f)
         {
-            StartCoroutine(DashCoroutine());
+            StartCoroutine(Dash_Coroutine());
         }
     }
-    private IEnumerator DashCoroutine()
+    private IEnumerator Dash_Coroutine()
     {
-        _playerMoveState = PlayerMoveState.Dash;
+        _playerActionState = PlayerActionState.Dash;
         _stamina -= 1f;
 
         Vector3 dir = Vector3.zero;
@@ -111,72 +137,46 @@ public class PlayerMove : MonoBehaviour
         }
 
         float elapsed = 0f;
-        while (elapsed < _playerData.DashTime)
+        while (elapsed < _playerMoveData.DashDuration)
         {
-            _controller.Move(dir.normalized * _playerData.DashPower * Time.deltaTime);
+            _controller.Move(dir.normalized * _playerMoveData.DashPower * Time.deltaTime);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        _playerMoveState = PlayerMoveState.Idle;
-    }
-    private void Jump()
-    {
-        if (Input.GetButtonDown("Jump"))
-        {
-            if (_isGrounded || _currentJumpCount < _playerData.MaxJumpCount)
-            {
-                _playerMoveState = PlayerMoveState.Jump;
-                _currentJumpCount++;
-                _velocity.y = Mathf.Sqrt(_playerData.JumpPower * -_playerData.GravityMultiplier * _playerData.Gravity);
-                _controller.Move(_velocity * Time.deltaTime);
-            }
-        }
+        _playerActionState = PlayerActionState.None;
     }
     private void Climb()
     {
-        if (WallCheck() && Input.GetButton("Jump") && _stamina > 0)
+        if(_stamina > 0 && Input.GetButton("Jump"))
         {
-            _playerMoveState = PlayerMoveState.Climb;
-            _stamina -= Time.deltaTime * _playerData.StaminaMinusSpeed;
-            _controller.Move(Vector3.up * _playerData.ClimbSpeed * Time.deltaTime);
+            if(Physics.CheckSphere(transform.position, 1f, 1 << LayerMask.NameToLayer("Wall")))
+            {
+                _playerActionState = PlayerActionState.Climb;
+                _stamina -= Time.deltaTime * _playerMoveData.StaminaMinusSpeed;
+                _controller.Move(Vector3.up * _playerMoveData.ClimbSpeed * Time.deltaTime);
+            }
+        }
+        else    
+        {
+            _playerActionState = PlayerActionState.None;
         }
     }
     private void Gravity()
     {
-        if(_playerMoveState == PlayerMoveState.Climb) return;
-
-        if(!_isGrounded)
+        if(_playerActionState == PlayerActionState.None)
         {
-            _velocity.y += _playerData.Gravity * _playerData.GravityMultiplier * Time.deltaTime;
-            _velocity.y = Mathf.Clamp(_velocity.y, -_playerData.GravityMaxSpeed, _playerData.GravityMaxSpeed);
-            _controller.Move(_velocity * Time.deltaTime);
+            if(!_controller.isGrounded)
+            {   
+                _velocity.y += _playerMoveData.Gravity * _playerMoveData.GravityMultiplier * Time.deltaTime;
+                _velocity.y = Mathf.Clamp(_velocity.y, -_playerMoveData.GravityMaxSpeed, _playerMoveData.GravityMaxSpeed);
+            }
+            else
+            {
+                _currentJumpCount = 0;
+                _velocity.y = -1f;
+            }
         }
-    }
-    private void GroundCheck()
-    {
-        _isGrounded = _controller.isGrounded;
-
-        if (_isGrounded && _velocity.y < 0)
-        {
-            _currentJumpCount = 0;
-            _velocity.y = -_playerData.GravityMultiplier;
-        }
-    }
-    private bool WallCheck()
-    {
-        int wallLayer = LayerMask.NameToLayer("Wall");
-        return Physics.CheckSphere(transform.position, 1f, 1 << wallLayer);
-    }
-    private void UpdateStamina()
-    { 
-        if(_playerMoveState == PlayerMoveState.Climb || _playerMoveState == PlayerMoveState.Run) return;
-
-        if(_isGrounded && _stamina < _playerData.StaminaMax)
-        {
-            _stamina += Time.deltaTime * _playerData.StaminaPlusSpeed;
-        }
-        _stamina = Mathf.Clamp(_stamina, 0, _playerData.StaminaMax);
 
     }
 }
