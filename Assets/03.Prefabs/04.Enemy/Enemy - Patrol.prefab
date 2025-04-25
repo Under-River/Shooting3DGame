@@ -398,9 +398,8 @@ GameObject:
   - component: {fileID: 5164814705095002314}
   - component: {fileID: 7364507763450977364}
   - component: {fileID: 7873574664414538634}
-  - component: {fileID: 134490003479169313}
-  - component: {fileID: 6541955894552428305}
   - component: {fileID: 8670217930364640297}
+  - component: {fileID: 5103228233164468534}
   - component: {fileID: 4633084013372633845}
   - component: {fileID: 5434013855073176125}
   - component: {fileID: 5443030494817270173}
@@ -482,54 +481,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!143 &134490003479169313
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8617146252834154809}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.0001
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!136 &6541955894552428305
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8617146252834154809}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &8670217930364640297
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -552,6 +503,29 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &5103228233164468534
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8617146252834154809}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4633084013372633845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -565,9 +539,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentState: 0
-  _enemy: {fileID: 5434013855073176125}
-  _enemyMove: {fileID: 5443030494817270173}
-  _enemyAttack: {fileID: 0}
 --- !u!114 &5434013855073176125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,8 +551,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10dccebfba981e34898d50060fb63100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyStateManager: {fileID: 0}
-  _player: {fileID: 0}
   _uiEnemy: {fileID: 0}
   _healthMax: 100
   _knockBackDuration: 0.5
@@ -598,9 +567,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bbd2ed5d47226e4a9c16e71b7a2984c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyStateManager: {fileID: 0}
-  _enemyAttack: {fileID: 0}
-  _player: {fileID: 0}
+  _enemyType: 0
   _patrolPoints: []
   _findDistance: 10
   _patrolSwitchTime: 3
@@ -617,8 +584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d281b22a42ba3745aea63d1e67ebf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyStateManager: {fileID: 0}
-  _player: {fileID: 0}
   _attackDistance: 5
   _attackCooltime: 2
   _attackDamage: 10

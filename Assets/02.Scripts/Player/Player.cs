@@ -1,22 +1,24 @@
 using UnityEngine;
 
-public class NewMonoBehaviourScript : MonoBehaviour, Idamgeable
+public class Player : MonoBehaviour, Idamgeable
 {
     [SerializeField] private int _healthmax = 100;
-    private int _health;
+    public int _health;
 
+    private void Start()
+    {
+        _health = _healthmax;
+    }
     public void TakeDamage(int damage)
     {
-        throw new System.NotImplementedException();
+        _health -= damage;
+        if(_health <= 0)
+        {
+            Die();
+        }
     }
-
-    void Start()
+    private void Die()
     {
-        
-    }
-
-    void Update()
-    {
-        
+        Debug.Log("Player is dead");
     }
 }

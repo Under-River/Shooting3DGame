@@ -1,48 +1,52 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAttack : MonoBehaviour
 {
-    [SerializeField] private Transform _player;
     [SerializeField] private float _attackDistance = 5.0f;
     [SerializeField] private float _attackCooltime = 2.0f;
     [SerializeField] private int _attackDamage = 10;
 
     private EnemyStateManager _enemyStateManager;
-    private float _attackTimer;  
+    private PoolingSystem _attackEffectPool;
+    private Transform _player;
+    private NavMeshAgent _agent;
+    private float _attackTimer;
 
+    public float AttackDistance => _attackDistance;
     private void Awake()
     {
         _enemyStateManager = GetComponent<EnemyStateManager>();
+        _player = FindAnyObjectByType<Player>().transform;
+        _agent = GetComponent<NavMeshAgent>();
     }
-
-    public float AttackDistance => _attackDistance;
+    private void Start()
+    {
+        _attackEffectPool = PoolSelector.instance.EnemyAttackEffectPool;
+    }
 
     public void AttackState()
     {
-        CheckAbleAttack();
-        CheckAttackTime();
-    }
-    private void Attack()
-    {
-        _player.GetComponent<Idamgeable>().TakeDamage(_attackDamage);
-    }
-    private void CheckAbleAttack()
-    {
-        if (!IsAbleAttack())
+        if(_agent.enabled == true)
         {
+            _agent.isStopped = true;
+            _agent.enabled = false;
+            _player.GetComponent<Idamgeable>().TakeDamage(_attackDamage);
+            _attackEffectPool.SpawnObject(transform.position, transform.forward, transform);
+            
+            Vector3 dir = _player.transform.position - transform.position;
+            dir.y = 0;
+            transform.rotation = Quaternion.LookRotation(dir);
+        }
+        else if(_attackTimer >= _attackCooltime)
+        {
+            _attackTimer = 0.0f;
+
+            _agent.enabled = true;
+            _agent.isStopped = false;
             _enemyStateManager.SetState(EnemyState.Trace);
-            _attackTimer = 0.0f;
-            return;
         }
-    }
-    private void CheckAttackTime()
-    {
         _attackTimer += Time.deltaTime;
-        if(_attackTimer >= _attackCooltime)
-        {
-            _attackTimer = 0.0f;
-            Attack();
-        }
     }
     private bool IsAbleAttack()
     {

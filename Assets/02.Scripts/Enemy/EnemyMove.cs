@@ -1,15 +1,22 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum EnemyType
+{
+    Patrol,
+    Trace,
+}
+
 public class EnemyMove : MonoBehaviour
 {
-    [SerializeField] private Transform _player;
+    [SerializeField] private EnemyType _enemyType;
     [SerializeField] private Transform[] _patrolPoints;
     [SerializeField] private float _findDistance = 10f;
     [SerializeField] private float _patrolSwitchTime = 3f;
     [SerializeField] private float _moveSpeed = 3.0f;
 
     private EnemyStateManager _enemyStateManager;
+    private Transform _player;
     private EnemyAttack _enemyAttack;
     private NavMeshAgent _agent;
     private CharacterController _controller;
@@ -20,6 +27,7 @@ public class EnemyMove : MonoBehaviour
     private void Awake()
     {
         _enemyStateManager = GetComponent<EnemyStateManager>();
+        _player = FindAnyObjectByType<Player>().transform;
         _enemyAttack = GetComponent<EnemyAttack>();
         _agent = GetComponent<NavMeshAgent>();
         _controller = GetComponent<CharacterController>();
@@ -28,6 +36,9 @@ public class EnemyMove : MonoBehaviour
     {
         _agent.speed = _moveSpeed;
         _startPosition = transform.position;
+    }
+    private void OnEnable()
+    {
         _enemyStateManager.SetState(EnemyState.Idle);
     }
     public void IdleState()
@@ -55,26 +66,28 @@ public class EnemyMove : MonoBehaviour
     }
     private void CheckFindPlayer()
     {
-        if(IsFindPlayer())
+        if(IsFindPlayer() || _enemyType == EnemyType.Trace)
         {
+            _agent.enabled = true;
             _enemyStateManager.SetState(EnemyState.Trace);
-            return;
         }
     }
     private void CheckSoFarPlayer()
     {
-        if(!IsFindPlayer())
+        if(!IsFindPlayer() && _enemyType == EnemyType.Patrol)
         {
             _enemyStateManager.SetState(EnemyState.Return);
-            return;
         }
     }
     private void CheckArriveStartPoint()
     {
-        if(GetDistanceXZ(transform.position, _startPosition) < _controller.minMoveDistance)
+        if(_enemyType == EnemyType.Patrol)
         {
-            _patrolIndex = 0;
-            _enemyStateManager.SetState(EnemyState.Idle);
+            if(GetDistanceXZ(transform.position, _startPosition) < 0.001f)
+            {
+                _patrolIndex = 0;
+                _enemyStateManager.SetState(EnemyState.Idle);
+            }
         }
     }
     private void CheckAbleAttack()
@@ -86,20 +99,23 @@ public class EnemyMove : MonoBehaviour
     }
     private void CheckPatrolTime()
     {
-        if(_idleTimer < _patrolSwitchTime)
+        if(_enemyType == EnemyType.Patrol)
         {
-            _idleTimer += Time.deltaTime;
-        }
-        else if(_idleTimer >= _patrolSwitchTime)
-        {
-            _idleTimer = 0.0f;
-            _patrolIndex = 0;
-            _enemyStateManager.SetState(EnemyState.Patrol);
+            if(_idleTimer < _patrolSwitchTime)
+            {
+                _idleTimer += Time.deltaTime;
+            }
+            else if(_idleTimer >= _patrolSwitchTime)
+            {
+                _idleTimer = 0.0f;
+                _patrolIndex = 0;
+                _enemyStateManager.SetState(EnemyState.Patrol);
+            }
         }
     }
     private void UpdatePatrolIndex()
     {
-        if(GetDistanceXZ(transform.position, _patrolPoints[_patrolIndex].position) < _controller.minMoveDistance)
+        if(GetDistanceXZ(transform.position, _patrolPoints[_patrolIndex].position) < 0.001f)
         {
             _patrolIndex++;
             if(_patrolIndex >= _patrolPoints.Length)
@@ -110,8 +126,11 @@ public class EnemyMove : MonoBehaviour
     }
     private void Move(Vector3 targetPosition)
     {
-        if (!_agent.enabled || !_agent.isOnNavMesh) return;
-
+        if(_agent.enabled == false || _agent.isStopped)
+        {
+            _agent.enabled = true;
+            _agent.isStopped = false;
+        }
         _agent.SetDestination(targetPosition);
     }
     private bool IsFindPlayer()

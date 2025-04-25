@@ -4,32 +4,43 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour, Idamgeable
 {
-    [SerializeField] private Transform _player;
     [SerializeField] private UI_Enemy _uiEnemy;
     [SerializeField] private int _healthMax = 100;
     [SerializeField] private float _knockBackDuration = 0.5f;
     [SerializeField] private float _knockBackPower = 10.0f;
 
     private EnemyStateManager _enemyStateManager;
+    private PoolingSystem _bulletEffectPool;
+    private Transform _player;
     private NavMeshAgent _agent;
     private CharacterController _char;
+    private Collider _collider;
     private int _health;
     private float _knockBackTimer;
 
     private void Awake()
     {
         _enemyStateManager = GetComponent<EnemyStateManager>();
+        _player = FindAnyObjectByType<Player>().transform;
         _agent = GetComponent<NavMeshAgent>();
         _char = GetComponent<CharacterController>();
+        _collider = GetComponent<Collider>();
     }
-    private void Start()
+    void Start()
+    {
+        _bulletEffectPool = PoolSelector.instance.BulletEffectPool;
+    }
+    private void OnEnable()
     {
         _health = _healthMax;
+        _uiEnemy.UpdateHealthUI(_health, _healthMax);
+        _collider.enabled = true;
     }
     public void TakeDamage(int damage)
     {
         if(_enemyStateManager.CurrentState == EnemyState.Die) return;
 
+        _enemyStateManager.SetState(EnemyState.TakeDamage);
         _knockBackTimer = 0.0f;
         _health -= damage;
 
@@ -38,6 +49,8 @@ public class Enemy : MonoBehaviour, Idamgeable
         if(_health <= 0)
         {
             _enemyStateManager.SetState(EnemyState.Die);
+
+            _collider.enabled = false;
             StartCoroutine(Die_Coroutine());
             return;
         }
@@ -50,7 +63,7 @@ public class Enemy : MonoBehaviour, Idamgeable
 
             Vector3 dir = transform.position - _player.transform.position;
             dir.y = 0;
-            _char.Move(dir.normalized * _knockBackPower * Time.deltaTime);
+            transform.position += dir.normalized * _knockBackPower * Time.deltaTime;
         }
         else
         {
@@ -59,9 +72,18 @@ public class Enemy : MonoBehaviour, Idamgeable
     }
     private IEnumerator Die_Coroutine()
     {
-        _agent.enabled = false;
-        _char.enabled = false;
+        foreach(Transform child in transform)
+        {
+            if(child.gameObject.name.Contains("Bullet"))
+            {
+                child.SetParent(_bulletEffectPool.transform);
+            }
+        }
+        _agent.isStopped = true;
+
         yield return new WaitForSeconds(2f);
+
+
         gameObject.SetActive(false);
     }
 }

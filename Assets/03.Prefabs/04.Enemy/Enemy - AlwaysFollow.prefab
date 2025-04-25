@@ -469,10 +469,12 @@ GameObject:
   - component: {fileID: 970313192588828990}
   - component: {fileID: 807457793989049231}
   - component: {fileID: 5863813257246691349}
-  - component: {fileID: 6711538752037600967}
-  - component: {fileID: 6436229348731719098}
-  - component: {fileID: 334960729748835671}
   - component: {fileID: 529886654003818646}
+  - component: {fileID: 3893072652907693627}
+  - component: {fileID: 334960729748835671}
+  - component: {fileID: 7462235137109025669}
+  - component: {fileID: -3131654931844410974}
+  - component: {fileID: 2557457528234942494}
   m_Layer: 8
   m_Name: Enemy - AlwaysFollow
   m_TagString: Untagged
@@ -550,32 +552,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!143 &6711538752037600967
-CharacterController:
+--- !u!195 &529886654003818646
+NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5034019369658469424}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
+  m_AgentTypeID: 0
   m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.0001
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!136 &6436229348731719098
+  m_Speed: 5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!136 &3893072652907693627
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -610,45 +609,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89171c8a9602d054ba91672d56ccb5dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentState: 0
-  EnemyType: 0
-  UI_Enemy: {fileID: 7017672048700516838}
-  FindDistance: 10
-  AttackDistance: 5
-  MoveSpeed: 3.3
-  HealthMax: 100
-  AttackCooltime: 2
-  KnockBackDuration: 0.1
-  KnockBackPower: 150
-  SwitchPatrolTime: 2
-  PatrolPointSwitchTime: 1
-  Player: {fileID: 0}
-  PatrolPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
---- !u!195 &529886654003818646
-NavMeshAgent:
+  _currentState: 0
+--- !u!114 &7462235137109025669
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5034019369658469424}
   m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 1
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10dccebfba981e34898d50060fb63100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiEnemy: {fileID: 7017672048700516838}
+  _healthMax: 100
+  _knockBackDuration: 0.5
+  _knockBackPower: 10
+--- !u!114 &-3131654931844410974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5034019369658469424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bbd2ed5d47226e4a9c16e71b7a2984c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyType: 1
+  _patrolPoints: []
+  _findDistance: 10
+  _patrolSwitchTime: 3
+  _moveSpeed: 3
+--- !u!114 &2557457528234942494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5034019369658469424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d281b22a42ba3745aea63d1e67ebf3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attackDistance: 5
+  _attackCooltime: 2
+  _attackDamage: 10
 --- !u!1 &8697236923823708392
 GameObject:
   m_ObjectHideFlags: 0
