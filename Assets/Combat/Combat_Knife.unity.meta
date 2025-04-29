@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 87e6e713c755c934eabd033e71919401
+timeCreated: 1554659974
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 143766
+  packageName: Combat Knife
+  packageVersion: 1.0
+  assetPath: Assets/Combat/Combat_Knife.unity
+  uploadId: 304541

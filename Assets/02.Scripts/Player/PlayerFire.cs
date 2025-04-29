@@ -1,14 +1,24 @@
 using System.Collections;
 using UnityEngine;
 
+public enum WeaponType
+{
+    Gun,
+    Knife,
+}
 public class PlayerFire : MonoBehaviour
 {
+    [SerializeField] private WeaponType _weaponType;
     [SerializeField] private PlayerWeaponData _playerWeaponData;
     [SerializeField] private WeaponStatData _weaponStatData;
-    [SerializeField] private UI_Player _uiPlayer;
+    [SerializeField] private PlayerAnimator _playerAnimator;
+    [SerializeField] private ParticleSystem _fireEffect;
+    [SerializeField] private WFX_LightFlicker _fireLight;
     [SerializeField] private WeaponRecoil _weaponRecoil;
     [SerializeField] private Transform _hand;
     [SerializeField] private Transform _muzzle;
+    [SerializeField] private GameObject[] _weapons;
+    [SerializeField] private Collider _swardCollider;
     [SerializeField] [Range(0.5f, 100f)]  private float _rayDistance = 100f;
     private PoolingSystem _bulletPool;
     private int _bulletCount;
@@ -16,15 +26,10 @@ public class PlayerFire : MonoBehaviour
     private float _delayTime;
     private RaycastHit _camRayHit;
     private int _layerMask;
-    private Coroutine _reloadCoroutine;
-    private bool _isReloading = false;
-
+    private const float _lightDelayValue = 0.5f;
     public WeaponStatData WeaponStatData => _weaponStatData;
     public int BulletCount => _bulletCount;
-    public bool IsReloading => _isReloading;
-    public float DelayTime => _delayTime;
-    public RaycastHit CamRayHit => _camRayHit;
-
+    public WeaponType WeaponType => _weaponType;
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -35,25 +40,28 @@ public class PlayerFire : MonoBehaviour
     private void Start()
     {
         _bulletPool = PoolSelector.instance.BulletPool;
-        _uiPlayer.ReloadImageActive(false);
+        _fireLight.time = _delayTime * _lightDelayValue;
     }
     private void Update()
     {
         _delayTime = _weaponStatData.PerDelayTime * _weaponStatData.DelayValue;
+        FireStop();
     }
     private void LateUpdate()
     {
         CamRayCast();
-        FireStop();
-        Reload();
-        CancelReload();
+    }
+    public void SetWeaponType(WeaponType weaponType)
+    {
+        _weaponType = weaponType;
     }
     private void FireStop()
     {
-        if(Input.GetMouseButtonUp(0) || _isReloading || _bulletCount <= 0)
+        if(Input.GetMouseButtonUp(0) || _bulletCount <= 0 || _playerAnimator.PlayerAniType == PlayerAniType.Reload)
         {
             _fireCount = 0;
             _weaponRecoil.ResetRecoil();
+            _fireLight.gameObject.SetActive(false);
         }
     }
     public void Fire()
@@ -61,7 +69,8 @@ public class PlayerFire : MonoBehaviour
         if(_bulletCount > 0)
         {
             _bulletCount--;
-            _uiPlayer.UpdateBulletCountUI(_bulletCount);
+            _fireEffect.Play();
+            _fireLight.gameObject.SetActive(true);
 
             _bulletPool.SpawnObject(_muzzle.position, _muzzle.forward);
             
@@ -75,54 +84,46 @@ public class PlayerFire : MonoBehaviour
             _weaponRecoil.AddRecoil(_fireCount);
         }
     }
-    private void Reload()
+    public void Reload()
     {
-        if(Input.GetKeyDown(KeyCode.R) && !_isReloading)
-        {
-            _reloadCoroutine = StartCoroutine(ReloadCoroutine());
-        }
-    }
-    private void CancelReload()
-    {
-        if(Input.GetMouseButtonDown(0) && _isReloading)
-        {
-            if (_reloadCoroutine != null)
-            {
-                StopCoroutine(_reloadCoroutine);
-                _reloadCoroutine = null;
-            }
-            _isReloading = false;
-            _uiPlayer.ReloadImageActive(false);
-            _uiPlayer.UpdateReloadUI(0, _weaponStatData.ReloadTime);
-        }
-    }
-    private IEnumerator ReloadCoroutine()
-    {
-        float time = 0f;
-        _uiPlayer.UpdateReloadUI(time, _weaponStatData.ReloadTime);
-        _uiPlayer.ReloadImageActive(true);
-        _isReloading = true;
-
-        while(time < _weaponStatData.ReloadTime)
-        {
-            time += Time.deltaTime;
-            _uiPlayer.UpdateReloadUI(time, _weaponStatData.ReloadTime);
-            yield return null;
-        }
-        _uiPlayer.ReloadImageActive(false);
-        _isReloading = false;
-
         _bulletCount = _playerWeaponData.BulletCountMax;
-        _uiPlayer.UpdateBulletCountUI(_bulletCount);
     }
     private void CamRayCast()
     {
-        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _layerMask))
+        if(_playerAnimator.PlayerAniType == PlayerAniType.Idle && _weaponType == WeaponType.Gun)
         {
-            _camRayHit = hit;
-            _hand.LookAt(_camRayHit.point);
-            Debug.DrawRay(_muzzle.position, _muzzle.forward * _rayDistance, Color.green, 1f);
+            Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _layerMask))
+            {
+                _camRayHit = hit;
+                _hand.LookAt(_camRayHit.point);
+            }
+            else
+            {
+                _hand.rotation = Quaternion.LookRotation(Camera.main.transform.forward);
+            }
         }
+    }
+    
+    public void Swap()
+    {
+        foreach(GameObject weapon in _weapons)
+        {
+            if(weapon == null) continue;
+            weapon.SetActive(false);
+        }
+        switch(_weaponType)
+        {
+            case WeaponType.Gun:
+                _weapons[0].SetActive(true);
+                break;
+            case WeaponType.Knife:
+                _weapons[2].SetActive(true);
+                break;
+        }
+    }
+    private void ActiveSwing(bool b)
+    {
+        _swardCollider.enabled = b;
     }
 }

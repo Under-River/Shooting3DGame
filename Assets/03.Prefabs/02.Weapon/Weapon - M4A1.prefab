@@ -11,9 +11,7 @@ GameObject:
   - component: {fileID: 4392034496190266576}
   - component: {fileID: 2344793165231274469}
   - component: {fileID: 4948613902064840281}
-  - component: {fileID: 8132422307874612335}
   - component: {fileID: 4919223027750959408}
-  - component: {fileID: 4976984031673446154}
   m_Layer: 0
   m_Name: Weapon - M4A1
   m_TagString: Untagged
@@ -92,28 +90,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!95 &8132422307874612335
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2474195883965459916}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 2e3b5b487c4e5e44ea6d9886a6502f29, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &4919223027750959408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,23 +104,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weaponStatData: {fileID: 11400000, guid: 653300b7d4f910048bb8962b850ec99a, type: 2}
   _cameraRotate: {fileID: 0}
---- !u!114 &4976984031673446154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2474195883965459916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77689ddc7d235b343bf6b14e2588137c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _weaponStatData: {fileID: 11400000, guid: 653300b7d4f910048bb8962b850ec99a, type: 2}
-  _weaponFire: {fileID: 0}
-  _weaponAni: {fileID: 8132422307874612335}
-  _fireEffect: {fileID: 5041572930737576421}
-  _fireLight: {fileID: 8742344529542136130}
 --- !u!1 &3112246439938655712
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,7 +132,7 @@ Transform:
   m_GameObject: {fileID: 3112246439938655712}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.00000029429793}
-  m_LocalPosition: {x: 0, y: 0.14000002, z: 1}
+  m_LocalPosition: {x: 0, y: 0.10500004, z: 0.74700004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -307,7 +266,7 @@ Transform:
   m_GameObject: {fileID: 4688848200570929902}
   serializedVersion: 2
   m_LocalRotation: {x: -0.000000029802358, y: 0, z: 4.6798574e-20, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: -0.05}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5192,7 +5151,7 @@ Transform:
   m_GameObject: {fileID: 4772214061197143006}
   serializedVersion: 2
   m_LocalRotation: {x: 8.792485e-15, y: 1, z: -0.000000029802354, w: 0.000000295028}
-  m_LocalPosition: {x: -0, y: 0.14, z: 0.81}
+  m_LocalPosition: {x: 0, y: 0.105, z: 0.647}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14943,8 +14902,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7832234155219588648}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.14, z: 0.81}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.10499999, z: 0.647}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

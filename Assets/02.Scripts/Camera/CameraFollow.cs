@@ -2,9 +2,9 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     [SerializeField] private Transform _target;
-    [SerializeField] [Range(0f, 3f)] private float _fpsHeightOffset = 2f;
-    [SerializeField] private Vector3 _tpsOffset = new Vector3(0f, 2f, -5f);
-    [SerializeField] private Vector3 _quarterViewOffset = new Vector3(0f, 15f, -10f);
+    [SerializeField] private Transform _fpsTarget;
+    [SerializeField] private Transform _tpsTarget;
+    [SerializeField] private Transform _quarterViewTarget;
 
     private void LateUpdate()
     {
@@ -27,14 +27,14 @@ public class CameraFollow : MonoBehaviour
     }
     private void FPSFollow()
     {
-        transform.position = _target.position + Vector3.up * _fpsHeightOffset;
+        transform.position = _fpsTarget.position;
     }
     private void TPSFollow()
     {
-        transform.position = _target.position + transform.rotation * _tpsOffset;
+        transform.position = _tpsTarget.position;
     }
     private void QuarterViewFollow()
     {
-        transform.position = _target.position + _quarterViewOffset;
+        transform.position = _quarterViewTarget.position;
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.Universal;
 
 public class Enemy : MonoBehaviour, Idamgeable
 {
@@ -8,13 +9,12 @@ public class Enemy : MonoBehaviour, Idamgeable
     [SerializeField] private int _healthMax = 100;
     [SerializeField] private float _knockBackDuration = 0.5f;
     [SerializeField] private float _knockBackPower = 10.0f;
+    [SerializeField] private float _dieTime = 2f;
 
     private EnemyStateManager _enemyStateManager;
     private PoolingSystem _bulletEffectPool;
     private Transform _player;
     private NavMeshAgent _agent;
-    private CharacterController _char;
-    private Collider _collider;
     private int _health;
     private float _knockBackTimer;
 
@@ -23,8 +23,6 @@ public class Enemy : MonoBehaviour, Idamgeable
         _enemyStateManager = GetComponent<EnemyStateManager>();
         _player = FindAnyObjectByType<Player>().transform;
         _agent = GetComponent<NavMeshAgent>();
-        _char = GetComponent<CharacterController>();
-        _collider = GetComponent<Collider>();
     }
     void Start()
     {
@@ -34,7 +32,6 @@ public class Enemy : MonoBehaviour, Idamgeable
     {
         _health = _healthMax;
         _uiEnemy.UpdateHealthUI(_health, _healthMax);
-        _collider.enabled = true;
     }
     public void TakeDamage(int damage)
     {
@@ -49,10 +46,7 @@ public class Enemy : MonoBehaviour, Idamgeable
         if(_health <= 0)
         {
             _enemyStateManager.SetState(EnemyState.Die);
-
-            _collider.enabled = false;
             StartCoroutine(Die_Coroutine());
-            return;
         }
     }
     public void DamageState()
@@ -72,17 +66,9 @@ public class Enemy : MonoBehaviour, Idamgeable
     }
     private IEnumerator Die_Coroutine()
     {
-        foreach(Transform child in transform)
-        {
-            if(child.gameObject.name.Contains("Bullet"))
-            {
-                child.SetParent(_bulletEffectPool.transform);
-            }
-        }
         _agent.isStopped = true;
 
-        yield return new WaitForSeconds(2f);
-
+        yield return new WaitForSeconds(_dieTime);
 
         gameObject.SetActive(false);
     }

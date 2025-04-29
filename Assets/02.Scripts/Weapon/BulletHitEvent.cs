@@ -22,7 +22,7 @@ public class BulletHitEvent : MonoBehaviour
     private void HitEffect(Collision collision)
     {
         transform.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-        _bulletEffectPool.SpawnObject(collision.contacts[0].point, collision.contacts[0].normal, collision.transform);
+        _bulletEffectPool.SpawnObject(collision.contacts[0].point, collision.contacts[0].normal);
         gameObject.SetActive(false);
     }
     private void HitDamage(Collision collision)

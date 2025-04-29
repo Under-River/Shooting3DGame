@@ -11,6 +11,7 @@ public class EnemyMove : MonoBehaviour
 {
     [SerializeField] private EnemyType _enemyType;
     [SerializeField] private Transform[] _patrolPoints;
+    [SerializeField] private Animator _enemyAni;
     [SerializeField] private float _findDistance = 10f;
     [SerializeField] private float _patrolSwitchTime = 3f;
     [SerializeField] private float _moveSpeed = 3.0f;
@@ -19,7 +20,6 @@ public class EnemyMove : MonoBehaviour
     private Transform _player;
     private EnemyAttack _enemyAttack;
     private NavMeshAgent _agent;
-    private CharacterController _controller;
     private Vector3 _startPosition;
     private int _patrolIndex = 0;
     private float _idleTimer = 0.0f;
@@ -30,7 +30,6 @@ public class EnemyMove : MonoBehaviour
         _player = FindAnyObjectByType<Player>().transform;
         _enemyAttack = GetComponent<EnemyAttack>();
         _agent = GetComponent<NavMeshAgent>();
-        _controller = GetComponent<CharacterController>();
     }
     private void Start()
     {
@@ -45,6 +44,7 @@ public class EnemyMove : MonoBehaviour
     {
         CheckFindPlayer();
         CheckPatrolTime();
+        _enemyAni.SetBool("Is Move", false);
     }
     public void TraceState()
     {
@@ -126,12 +126,12 @@ public class EnemyMove : MonoBehaviour
     }
     private void Move(Vector3 targetPosition)
     {
-        if(_agent.enabled == false || _agent.isStopped)
+        if(_agent.isStopped)
         {
-            _agent.enabled = true;
             _agent.isStopped = false;
         }
         _agent.SetDestination(targetPosition);
+        _enemyAni.SetFloat("Move Amount", _agent.velocity.magnitude);
     }
     private bool IsFindPlayer()
     {
